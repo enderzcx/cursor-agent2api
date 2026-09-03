@@ -1,0 +1,5 @@
+Links:
+1. [Cursor CLI](https://cursor.com/docs/cli/overview)
+2. [Cursor CLI — Run Agents in Terminal](https://cursor.com/cli)
+
+Cursor CLI documentation follows. Install with curl https://cursor.com/install or see https://cursor.com/install?win32=true for Windows.

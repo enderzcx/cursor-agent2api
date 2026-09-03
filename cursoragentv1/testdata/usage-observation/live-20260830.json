@@ -1,0 +1,15 @@
+{
+  "provenance": "Owner-authorized isolated candidate executor, live Cursor Agent v1, 2026-08-30; numeric terminal payloads only. No credentials, customer prompts, or full server frames retained.",
+  "candidate_commit": "52ef18492e9ae64ab0e8b6f07cfe0cf3bc204b6a",
+  "scope": "upstream terminal observed; per-HTTP attribution not proven",
+  "samples": [
+    {"case":"plain","model":"composer-2.5-fast","delta_sum":16,"terminal_hex":"08c118102d18c00320002800","input":3137,"output":45,"cache_read":448,"cache_write":0,"reasoning":0},
+    {"case":"tool-a","model":"composer-2.5-fast","delta_sum":128,"terminal_hex":null,"stop_reason":"tool_use"},
+    {"case":"tool-b","model":"composer-2.5-fast","delta_sum":21,"terminal_hex":"088d3610c50118c00720002800","input":6925,"output":197,"cache_read":960,"cache_write":0,"reasoning":0},
+    {"case":"tool-c-replay","model":"composer-2.5-fast","delta_sum":0,"terminal_hex":null,"replay":true,"new_wire_events":0},
+    {"case":"search","model":"composer-2.5-fast","delta_sum":2570,"largest_delta_after_search_result":2392,"search_result_bytes":9533,"terminal_hex":"08c44810ae0218a02220002800","input":9284,"output":302,"cache_read":4384,"cache_write":0,"reasoning":0},
+    {"case":"search","model":"claude-opus-5-high","delta_sum":2861,"largest_delta_after_search_result":2781,"search_result_bytes":11103,"terminal_hex":"089e7810f40118b52a20e54d2800","input":15390,"output":244,"cache_read":5429,"cache_write":9957,"reasoning":0},
+    {"case":"search-after-repair","candidate_commit":"e9b1ada173","model":"claude-opus-5-high","delta_sum":2867,"terminal_hex":"08937810fd0118b52a20da4d2800","input":15379,"output":253,"cache_read":5429,"cache_write":9946,"reasoning":0,"projected_query_present":true,"projected_source_count":5}
+  ],
+  "release_blocker": "tokenDelta is not an exact output-token count: it differs from terminal output even without tools and grows with search-result payloads. Do not promote it as measured output, or change charging automatically from these samples."
+}

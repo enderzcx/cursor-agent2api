@@ -1,0 +1,29 @@
+{
+ "direction": "claude->cursor",
+ "request": {
+  "model": "claude-opus-5",
+  "messages": [
+   {
+    "role": "user",
+    "content": "x"
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "future_block",
+      "payload": "?"
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": "y"
+   }
+  ]
+ },
+ "expect": {
+  "error_status": 422,
+  "error_contains": "unsupported content block future_block"
+ }
+}

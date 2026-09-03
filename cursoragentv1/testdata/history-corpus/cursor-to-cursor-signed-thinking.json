@@ -1,0 +1,49 @@
+{
+ "direction": "cursor->cursor",
+ "request": {
+  "model": "claude-sonnet-4-6",
+  "thinking": {
+   "type": "enabled",
+   "budget_tokens": 1024
+  },
+  "messages": [
+   {
+    "role": "user",
+    "content": "Think briefly, then reply exactly ONE."
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "thinking",
+      "thinking": "Reply with ONE.",
+      "signature": "ErUBCkYIBxgCKkDcursorsandsignature00000000000000000000000000000000000000000000000000000000000000000000000000000"
+     },
+     {
+      "type": "text",
+      "text": "ONE"
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": "Now reply exactly TWO."
+   }
+  ]
+ },
+ "expect": {
+  "history_len": 2,
+  "thinking_enabled": true,
+  "sand": {
+   "reasoning_parts": 1,
+   "reasoning_signatures": 1,
+   "model_parameters": [
+    "thinking=true"
+   ],
+   "minted_signatures": [
+    "ErUBCkYIBxgCKkDcursorsandsignature00000000000000000000000000000000000000000000000000000000000000000000000000000"
+   ],
+   "reasoning_signatures_after_retry": 0
+  }
+ }
+}

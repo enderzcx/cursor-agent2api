@@ -1,0 +1,18 @@
+services:
+  cursor-agent2api:
+    image: ghcr.io/enderzcx/cursor-agent2api:latest
+    # To build locally instead of pulling:
+    # build: .
+    container_name: cursor-agent2api
+    restart: unless-stopped
+    ports:
+      - "8317:8317"
+    environment:
+      # Optional. Generated on first start and printed to the logs when unset.
+      CA2A_API_KEY: ${CA2A_API_KEY:-}
+      CA2A_MANAGEMENT_KEY: ${CA2A_MANAGEMENT_KEY:-}
+      # Optional. Seeds /data/auths/cursor-default.json with one Cursor API key.
+      CA2A_CURSOR_API_KEY: ${CA2A_CURSOR_API_KEY:-}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - ./data:/data

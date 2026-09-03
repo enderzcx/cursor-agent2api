@@ -1,0 +1,111 @@
+{
+ "direction": "claude->cursor",
+ "source_request_id": "202609020527443826559608268d9d6I5RXlGkB",
+ "request": {
+  "model": "claude-opus-5",
+  "system": [
+   {
+    "type": "text",
+    "text": "You are Claude Code, Anthropic's official CLI for Claude."
+   },
+   {
+    "type": "text",
+    "text": "cc_entrypoint=cli; version=2.1.0"
+   }
+  ],
+  "thinking": {
+   "type": "enabled",
+   "budget_tokens": 4096
+  },
+  "tools": [
+   {
+    "name": "Read",
+    "input_schema": {
+     "type": "object"
+    }
+   }
+  ],
+  "messages": [
+   {
+    "role": "user",
+    "content": "inspect the repo"
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "thinking",
+      "thinking": "The user wants me to look at the repository first.",
+      "signature": "EqQBCkYIBxgCKkDanthropicsignaturefromvipchannel000000000000000000000000000000000000000000000000000000000000"
+     },
+     {
+      "type": "redacted_thinking",
+      "data": "EroBCoYBGAIiQL6ciphertextfromvipchannel"
+     },
+     {
+      "type": "text",
+      "text": "I will read the README."
+     },
+     {
+      "type": "tool_use",
+      "id": "toolu_read1",
+      "name": "Read",
+      "input": {
+       "file_path": "README.md"
+      }
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "tool_result",
+      "tool_use_id": "toolu_read1",
+      "content": "# BeefAPI"
+     }
+    ]
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "thinking",
+      "thinking": "Now summarize.",
+      "signature": "EqQBCkYIBxgCKkDsecondsignature0000000000000000000000000000000000000000000000000000000000000000000000000"
+     },
+     {
+      "type": "text",
+      "text": "It is the BeefAPI repository."
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": "continue"
+   }
+  ]
+ },
+ "expect": {
+  "history_len": 4,
+  "history_contains": [
+   "\"type\":\"reasoning\"",
+   "\"type\":\"redacted-reasoning\"",
+   "I will read the README.",
+   "It is the BeefAPI repository.",
+   "\"type\":\"tool-call\"",
+   "\"type\":\"tool-result\""
+  ],
+  "history_not_contains": [
+   "\"type\":\"thinking\"",
+   "unsupported content block thinking",
+   "\"type\":\"text\",\"text\":\"The user wants me"
+  ],
+  "sand": {
+   "reasoning_parts": 2,
+   "reasoning_signatures": 0,
+   "redacted_reasoning_parts": 0
+  },
+  "note": "Signatures minted by another provider are never forwarded; reasoning text still reaches Cursor natively."
+ }
+}

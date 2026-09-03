@@ -1,0 +1,75 @@
+{
+ "direction": "claude->cursor",
+ "request": {
+  "model": "claude-fable-5-1",
+  "system": [
+   {
+    "type": "text",
+    "text": "You are Claude Code, Anthropic's official CLI for Claude."
+   },
+   {
+    "type": "text",
+    "text": "cc_entrypoint=cli; version=2.1.0"
+   }
+  ],
+  "tools": [
+   {
+    "name": "take_screenshot",
+    "input_schema": {
+     "type": "object"
+    }
+   }
+  ],
+  "messages": [
+   {
+    "role": "user",
+    "content": "screenshot please"
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "tool_use",
+      "id": "toolu_now",
+      "name": "take_screenshot",
+      "input": {}
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "tool_result",
+      "tool_use_id": "toolu_now",
+      "content": [
+       {
+        "type": "text",
+        "text": "captured"
+       },
+       {
+        "type": "image",
+        "source": {
+         "type": "base64",
+         "media_type": "image/png",
+         "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "expect": {
+  "history_len": 3,
+  "history_contains": [
+   "\"experimental_content\""
+  ],
+  "active_results": 1,
+  "active_result_media": 1,
+  "sand": {
+   "tool_result_media_parts": 1
+  }
+ }
+}

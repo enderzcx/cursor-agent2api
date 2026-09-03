@@ -1,0 +1,9 @@
+dist/
+*.so
+*.dylib
+*.dll
+*.h
+.DS_Store
+/cursor-agent2api.h
+data/
+out/

@@ -1,0 +1,85 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            COMMIT=${{ github.sha }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Native bundles (host binary + plugin) for people who do not want Docker.
+  # cgo dynamic libraries must be built on the target OS/arch, hence the matrix.
+  bundles:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-amd64
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+          - os: macos-14
+            target: darwin-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build
+        run: make dist VERSION=${{ github.ref_name }}
+      - name: Package
+        run: |
+          set -euo pipefail
+          name="cursor-agent2api-${{ github.ref_name }}-${{ matrix.target }}"
+          mkdir -p "out/$name"
+          cp dist/CLIProxyAPI dist/cursor-agent2api.* dist/config.template.yaml "out/$name/"
+          cp deploy/run-local.sh "out/$name/run.sh"
+          cp README.md LICENSE NOTICE "out/$name/"
+          tar -C out -czf "out/$name.tar.gz" "$name"
+          (cd out && shasum -a 256 "$name.tar.gz" > "$name.tar.gz.sha256")
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/*.tar.gz
+            out/*.sha256
+          generate_release_notes: true

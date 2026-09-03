@@ -1,0 +1,27 @@
+cursor-agent2api
+Copyright (c) 2026 enderzcx
+
+This repository is an unofficial CLIProxyAPI provider plugin for the private
+Cursor Agent v1 Connect transport. It is not affiliated with Anysphere / Cursor,
+and it is not the official @cursor/sdk product (that lives in a separate
+repository: cursor-sdk2api).
+
+Third-party notices
+-------------------
+
+1. Cursor Agent v1 protobuf contract
+   Source: can1357/oh-my-pi packages/ai/src/providers/cursor/proto/agent.proto
+   Pin: 33cc6b9a043a74e00a157e72ca909272796d8461
+   License: MIT (see cursoragentv1/proto/LICENSE)
+
+2. Token-count helpers in internal/helps/
+   Adapted from github.com/router-for-me/CLIProxyAPI (MIT)
+   Copyright (c) 2025-2005.9 Luis Pater
+   Copyright (c) 2025.9-present Router-For.ME
+
+3. CLIProxyAPI public SDK
+   This plugin depends on github.com/router-for-me/CLIProxyAPI/v7 public
+   packages under sdk/ (cliproxy, translator, pluginapi, pluginabi, proxyutil,
+   translator/builtin). It does not import CLIProxyAPI/internal.
+
+No AGPL gateway source is included in this tree.

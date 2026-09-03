@@ -1,0 +1,31 @@
+# cursor-agent2api default CLIProxyAPI configuration.
+# The Docker entrypoint renders this once into /data/config.yaml; edit that copy.
+# Full reference: https://github.com/router-for-me/CLIProxyAPI/blob/main/config.example.yaml
+
+host: ""
+port: 8317
+
+# Cursor credentials live here as JSON files ({"type":"cursor-agent-v1","api_key":"key_..."}).
+auth-dir: "__DATA_DIR__/auths"
+
+# Keys your clients send as Authorization: Bearer <key> / x-api-key.
+api-keys:
+  - "__API_KEY__"
+
+# Management API + built-in control panel at http://<host>:8317/management.html
+remote-management:
+  allow-remote: true
+  secret-key: "__MANAGEMENT_KEY__"
+  disable-control-panel: false
+
+logging-to-file: false
+debug: false
+
+plugins:
+  enabled: true
+  dir: "/app/plugins"
+  configs:
+    cursor-agent2api:
+      enabled: true
+      # Agent v1 session, checkpoint and parked tool-call state.
+      state_dir: "__DATA_DIR__/state"

@@ -1,0 +1,120 @@
+{
+ "direction": "claude->cursor",
+ "source_request_id": "202609020519067028905458268d9d6whXvLCxg",
+ "request": {
+  "model": "claude-fable-5-1",
+  "system": [
+   {
+    "type": "text",
+    "text": "You are Claude Code, Anthropic's official CLI for Claude."
+   },
+   {
+    "type": "text",
+    "text": "cc_entrypoint=cli; version=2.1.0"
+   }
+  ],
+  "tools": [
+   {
+    "name": "mcp__chrome-devtools__take_screenshot",
+    "description": "screenshot",
+    "input_schema": {
+     "type": "object",
+     "properties": {}
+    }
+   },
+   {
+    "name": "Read",
+    "input_schema": {
+     "type": "object"
+    }
+   }
+  ],
+  "messages": [
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "text",
+      "text": "Open the page and check the header color."
+     }
+    ]
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "text",
+      "text": "Taking a screenshot."
+     },
+     {
+      "type": "tool_use",
+      "id": "toolu_01shot",
+      "name": "mcp__chrome-devtools__take_screenshot",
+      "input": {}
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01shot",
+      "content": [
+       {
+        "type": "text",
+        "text": "Took a screenshot of the current page."
+       },
+       {
+        "type": "image",
+        "source": {
+         "type": "base64",
+         "media_type": "image/png",
+         "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "text",
+      "text": "The header is blue."
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "text",
+      "text": "Now check the footer."
+     }
+    ]
+   }
+  ]
+ },
+ "expect": {
+  "history_len": 4,
+  "history_contains": [
+   "\"experimental_content\"",
+   "\"mimeType\":\"image/png\"",
+   "Took a screenshot of the current page."
+  ],
+  "history_not_contains": [
+   "\"type\":\"image\",\"source\"",
+   "must contain only text blocks"
+  ],
+  "sand": {
+   "tool_result_media_parts": 1,
+   "user_media_parts": 0,
+   "reasoning_parts": 0
+  },
+  "agent_v1": {
+   "lifted_user_media_messages": 1
+  }
+ }
+}

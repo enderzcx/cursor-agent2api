@@ -1,0 +1,67 @@
+{
+ "direction": "claude->cursor",
+ "request": {
+  "model": "claude-opus-5",
+  "tools": [
+   {
+    "name": "Read",
+    "input_schema": {
+     "type": "object"
+    }
+   }
+  ],
+  "messages": [
+   {
+    "role": "user",
+    "content": "very old request OLDTEXT"
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "tool_use",
+      "id": "toolu_old",
+      "name": "Read",
+      "input": {
+       "p": "a"
+      }
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "tool_result",
+      "tool_use_id": "toolu_old",
+      "content": "OLDRESULT"
+     }
+    ]
+   },
+   {
+    "role": "assistant",
+    "content": [
+     {
+      "type": "compaction",
+      "content": "Summary: the user is building a scraper; Read of a returned OLDRESULT-summary."
+     }
+    ]
+   },
+   {
+    "role": "user",
+    "content": "continue from the summary"
+   }
+  ]
+ },
+ "expect": {
+  "history_len": 1,
+  "history_contains": [
+   "Compacted conversation summary",
+   "building a scraper"
+  ],
+  "history_not_contains": [
+   "OLDTEXT",
+   "\"toolCallId\":\"toolu_old\""
+  ]
+ }
+}

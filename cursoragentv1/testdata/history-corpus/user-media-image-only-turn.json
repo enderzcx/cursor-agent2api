@@ -1,0 +1,28 @@
+{
+ "direction": "claude->cursor",
+ "request": {
+  "model": "claude-fable-5-1",
+  "messages": [
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "image",
+      "source": {
+       "type": "base64",
+       "media_type": "image/png",
+       "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "expect": {
+  "user_media": 1,
+  "user_text": "See the attached media.",
+  "sand": {
+   "user_media_parts": 1
+  }
+ }
+}

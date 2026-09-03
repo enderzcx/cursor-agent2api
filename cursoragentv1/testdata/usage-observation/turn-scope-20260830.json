@@ -1,0 +1,14 @@
+{
+  "provenance": "Live Agent v1, channel 301 credential, isolated local SessionManager, composer-2.5-fast. Three calls, two HTTP2 streams. Exact conversation ID matched in memory; only SHA256 and numeric counts retained.",
+  "conversation_hash": "1c32da51ccdc0d510c6578c2f8258261795be80a33baeaae59f97590799ad2f6",
+  "started_ms": 1788097502868,
+  "calls": 3,
+  "streams": 2,
+  "a_terminal_count": 0,
+  "turns": [
+    {"name":"A-tool-and-B-result","wire_input":6638,"wire_output":105,"wire_cache_read":544,"wire_cache_write":0,"dashboard_timestamp":1788097504971,"dashboard_input":6094,"dashboard_output":105,"dashboard_cache_read":544,"delta_sum":46},
+    {"name":"C-next-user-message","wire_input":3311,"wire_output":23,"wire_cache_read":448,"wire_cache_write":0,"dashboard_timestamp":1788097511894,"dashboard_input":2863,"dashboard_output":23,"dashboard_cache_read":448,"delta_sum":17}
+  ],
+  "transient_dashboard": {"timestamp":1788097504971,"input":3213,"output":74,"cache_read":64},
+  "limits": "Single model/credential successful sample. Not per-model-call billing proof, not a client protocol or production ledger acceptance. Dashboard row mutated before converging; do not settle from first poll."
+}

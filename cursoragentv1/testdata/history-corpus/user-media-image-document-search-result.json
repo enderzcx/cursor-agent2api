@@ -1,0 +1,93 @@
+{
+ "direction": "claude->cursor",
+ "request": {
+  "model": "claude-fable-5-1",
+  "messages": [
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "text",
+      "text": "Look at this screenshot and this spec."
+     },
+     {
+      "type": "image",
+      "source": {
+       "type": "base64",
+       "media_type": "image/png",
+       "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      }
+     },
+     {
+      "type": "document",
+      "source": {
+       "type": "base64",
+       "media_type": "application/pdf",
+       "data": "JVBERi0xLjQKJcOkw7zDtsOfCjEgMCBvYmoKPDwvVHlwZS9DYXRhbG9nPj4KZW5kb2JqCnRyYWlsZXIKPDwvUm9vdCAxIDAgUj4+CiUlRU9G"
+      },
+      "title": "spec.pdf"
+     },
+     {
+      "type": "document",
+      "source": {
+       "type": "text",
+       "media_type": "text/plain",
+       "data": "plain notes"
+      },
+      "title": "notes"
+     },
+     {
+      "type": "search_result",
+      "source": "https://docs.example.com",
+      "title": "Docs",
+      "content": [
+       {
+        "type": "text",
+        "text": "doc excerpt"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "role": "assistant",
+    "content": "Got it."
+   },
+   {
+    "role": "user",
+    "content": [
+     {
+      "type": "text",
+      "text": "And this one too."
+     },
+     {
+      "type": "image",
+      "source": {
+       "type": "base64",
+       "media_type": "image/png",
+       "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "expect": {
+  "history_len": 2,
+  "history_contains": [
+   "\"type\":\"image\"",
+   "\"type\":\"file\"",
+   "\"filename\":\"spec.pdf\"",
+   "Document \\\"notes\\\"",
+   "Search result \\\"Docs\\\"",
+   "doc excerpt"
+  ],
+  "user_media": 1,
+  "user_text": "And this one too.",
+  "sand": {
+   "user_media_parts": 1,
+   "history_image_parts": 1,
+   "history_file_parts": 1
+  }
+ }
+}
