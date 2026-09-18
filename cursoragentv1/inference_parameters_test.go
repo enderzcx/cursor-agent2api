@@ -51,7 +51,6 @@ func TestClaudeCatalogRejectsUnsupportedTiers(t *testing.T) {
 		{Model: "claude-opus-4-6", InferenceContext: "300k"},
 		{Model: "claude-sonnet-4-6", ReasoningEffort: "xhigh"},
 		{Model: "claude-fable-5", InferenceContext: "200k"},
-		{Model: "grok-4.6", ReasoningEffort: "max"},
 	} {
 		_, err := encodeInferenceRequest(run)
 		require.Error(t, err)
@@ -62,6 +61,14 @@ func TestClaudeCatalogRejectsUnsupportedTiers(t *testing.T) {
 		require.Equal(t, strings.ToLower(strings.TrimSpace(kind)) != "disabled", *v)
 	}
 	require.Nil(t, originalInferenceThinking(cliproxyexecutor.Request{Payload: []byte(`{}`)}))
+}
+
+func TestSandGrokMaxCompatibilityAlias(t *testing.T) {
+	alias, err := encodeInferenceRequest(RunRequest{Model: "grok-4.6", ReasoningEffort: "max"})
+	require.NoError(t, err)
+	explicit, err := encodeInferenceRequest(RunRequest{Model: "grok-4.6", ReasoningEffort: "xhigh"})
+	require.NoError(t, err)
+	require.Equal(t, bytesField(explicit, 7), bytesField(alias, 7))
 }
 
 func TestSandFableParametersSurviveSourceProtocols(t *testing.T) {

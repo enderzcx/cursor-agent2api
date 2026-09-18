@@ -101,8 +101,8 @@ model currently registered by this project. Omit it to retain the previous upstr
 | Opus 4.6, Sonnet 4.6 | `200k`, `1m` | `low`, `medium`, `high`, `max` |
 
 The table follows the Cursor catalog observed on 2026-09-19, not a guarantee of
-future upstream availability. Unsupported combinations return an error, never a
-silent tier substitution. `enabled` or `adaptive` enables Cursor thinking; this
+future upstream availability. Unsupported Claude combinations return an error.
+`enabled` or `adaptive` enables Cursor thinking; this
 maps the enablement/effort contract, not an exact Anthropic token-budget guarantee.
 Fable thinking is always enabled, matching Claude Code; explicit `disabled` on
 Fable returns 400 instead of silently downgrading. On the other models explicit
@@ -114,8 +114,10 @@ that a million-token payload will be accepted. No model substitution occurs.
 
 Sand reads effort from the original caller protocol: Messages
 `output_config.effort`, Chat `reasoning_effort`, or Responses `reasoning.effort`.
-This update forwards explicit Claude/Grok effort; unsupported explicit values
-fail instead of silently selecting another tier. Send the same parameters on
+This update forwards explicit Claude/Grok effort. For the registered Grok 4.6
+model, `max` is a compatibility alias for Cursor's highest tier, `xhigh`; it does
+not select a different model. Other unsupported explicit values return an error.
+Send the same parameters on
 tool-result continuations. Ordinary `agent_v1` behavior is unchanged.
 
 Only an API key is sufficient for normal account import; a copied desktop access

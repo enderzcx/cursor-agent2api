@@ -7,6 +7,8 @@ Existing direct HTTP/2 inference transport, OAuth identity validation and ordina
 Agent v1 default are retained. No Box provisioning or production channel changes.
 
 Changes:
+- Owner-confirmed compatibility policy: Grok 4.6 max is an alias for xhigh;
+  this is documented and wire-equivalence tested, not a model substitution.
 - Original-protocol reasoning effort survives translation into Sand parameters.
 - All eight registered Claude models accept explicit catalog-backed context and effort.
   Opus/Sonnet 4.6 use 200k/1m without xhigh; the other six use 300k/1m and support xhigh.

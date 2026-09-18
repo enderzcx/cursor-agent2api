@@ -111,7 +111,8 @@ func applyInferenceParameters(selection *inferenceModelSpec, request RunRequest)
 		return &requestError{status: http.StatusBadRequest, text: "unsupported Cursor Sand reasoning effort"}
 	}
 	if strings.HasPrefix(selection.ID, "grok-") && effort == "max" {
-		return &requestError{status: http.StatusBadRequest, text: "Grok does not support max effort; request xhigh explicitly"}
+		// Public compatibility alias: Cursor Grok calls its highest tier xhigh.
+		effort = "xhigh"
 	}
 	setInferenceParameter(selection, "effort", effort)
 	return nil
