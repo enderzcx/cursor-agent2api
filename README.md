@@ -70,10 +70,61 @@ Drop a JSON file into the auth directory (`data/auths/` by default). The host pi
 ```
 
 - `api_key` is the only required field. On first use the plugin exchanges it for an Agent v1 access token, records the account identity, and the host persists the refreshed file. Tokens are refreshed every 30 minutes.
-- `runtime_profile`: `agent_v1` (default) or `sand`. Sand routes through Cursor's inference runtime and unlocks `grok-4.6`; keep separate credential files if you want both catalogs.
+- `runtime_profile`: `agent_v1` (default) or `sand`. Sand uses HTTP/2 directly at `https://api2.cursor.sh/aiserver.v1.InferenceService/Stream`, not a Box gateway or desktop patch. Account authorization and quota still apply; keep separate credential files if you want both catalogs.
 - Optional per-account `proxy_url`, `disabled`, and other CLIProxyAPI auth-file fields work as documented upstream.
 
 The control panel's Auth Files page shows each account's status (`active`, `unauthorized`, cooldown) and lets you upload/delete/disable files.
+
+### Fable 5.1: explicit 1M context and Medium effort (Sand)
+
+Select `runtime_profile: "sand"` in the account file. Existing accounts are not
+automatically switched. Then send, for example, to `/v1/messages`:
+
+```json
+{
+  "model": "claude-fable-5-1",
+  "cursor_context": "1m",
+  "thinking": {"type": "enabled", "budget_tokens": 1024},
+  "output_config": {"effort": "medium"},
+  "max_tokens": 2048,
+  "stream": true,
+  "messages": [{"role": "user", "content": "Reply exactly FABLE_OK."}]
+}
+```
+
+`cursor_context` is this plugin's optional request extension for every Claude
+model currently registered by this project. Omit it to retain the previous upstream selector.
+
+| Models | Context values | Effort values |
+| --- | --- | --- |
+| Fable 5.1, Fable 5, Opus 5, Opus 4.8, Opus 4.7, Sonnet 5 | `300k`, `1m` | `low`, `medium`, `high`, `xhigh`, `max` |
+| Opus 4.6, Sonnet 4.6 | `200k`, `1m` | `low`, `medium`, `high`, `max` |
+
+The table follows the Cursor catalog observed on 2026-09-19, not a guarantee of
+future upstream availability. Unsupported Claude combinations return an error.
+`enabled` or `adaptive` enables Cursor thinking; this
+maps the enablement/effort contract, not an exact Anthropic token-budget guarantee.
+Fable thinking is always enabled, matching Claude Code; explicit `disabled` on
+Fable returns 400 instead of silently downgrading. On the other models explicit
+`thinking.type=disabled` remains false; omitted thinking retains prior behavior.
+The gateway does not force Medium on all users: Claude Code's requested effort wins.
+The 1M
+selector sets Cursor Max mode; it does not confer account entitlement or prove
+that a million-token payload will be accepted. No model substitution occurs.
+
+Sand reads effort from the original caller protocol: Messages
+`output_config.effort`, Chat `reasoning_effort`, or Responses `reasoning.effort`.
+This update forwards explicit Claude/Grok effort. For the registered Grok 4.6
+model, `max` is a compatibility alias for Cursor's highest tier, `xhigh`; it does
+not select a different model. Other unsupported explicit values return an error.
+Send the same parameters on
+tool-result continuations. Ordinary `agent_v1` behavior is unchanged.
+
+Only an API key is sufficient for normal account import; a copied desktop access
+token alone is not a replacement for the API-key/account identity check. Do not
+copy macOS Keychain contents into this project. See [verification](docs/sand-fable-refresh.md)
+for the exact acceptance scope and remaining release gates. All eight registered
+Claude models use this same parameter path; the Fable request above is an example.
 
 ## Build from source
 

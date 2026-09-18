@@ -33,7 +33,9 @@ func TestAuthorizedSandExecutorProbe(t *testing.T) {
 	}
 	auth := &cliproxyauth.Auth{ID: "dedicated-sand-executor-probe", Provider: providerID,
 		Attributes: map[string]string{"credential_scope": "tenant:1:user:1:channel:301"}, Metadata: metadata}
-	body, err := jsonx.Marshal(map[string]any{"model": model, "messages": []any{map[string]any{"role": "user", "content": "Reply exactly TYPE64_SAND_EXECUTOR_OK."}}})
+	probeBody := map[string]any{"model": model, "messages": []any{map[string]any{"role": "user", "content": "Reply exactly TYPE64_SAND_EXECUTOR_OK."}}}
+	authorizedSandParameters(probeBody)
+	body, err := jsonx.Marshal(probeBody)
 	if err != nil {
 		t.Fatal("could not encode Sand executor probe")
 	}
@@ -69,6 +71,7 @@ func TestAuthorizedSandExecutorToolProbe(t *testing.T) {
 		Attributes: map[string]string{"credential_scope": "tenant:1:user:1:channel:301"}, Metadata: metadata}
 	model := authorizedSandProbeModel()
 	call := func(session string, body map[string]any) cliproxyexecutor.Response {
+		authorizedSandParameters(body)
 		payload, encodeErr := jsonx.Marshal(body)
 		if encodeErr != nil {
 			t.Fatal("could not encode Sand tool probe")
@@ -121,6 +124,64 @@ func TestAuthorizedSandExecutorToolProbe(t *testing.T) {
 		t.Fatal("Sand tool probe completed without both usage receipts")
 	}
 	t.Log("Sand caller tool and full-history tool_result continuation returned TYPE64_SAND_TOOL_OK with receipts")
+}
+
+// Optional explicit selector for the bounded Fable acceptance probes.
+func authorizedSandParameters(body map[string]any) {
+	if os.Getenv("CURSOR_AGENT_V1_SAND_PARAMETERS") == "fable-1m-medium" {
+		body["cursor_context"] = "1m"
+		body["thinking"] = map[string]any{"type": "enabled", "budget_tokens": 1024}
+		body["output_config"] = map[string]any{"effort": "medium"}
+	}
+}
+
+func TestAuthorizedSandStreamingParameters(t *testing.T) {
+	if os.Getenv("CURSOR_AGENT_V1_SAND_STREAM_PROBE") != "1-request" {
+		t.Skip("explicit bounded streaming authorization required")
+	}
+	metadata := liveProbeMetadata(t)
+	metadata["runtime_profile"] = runtimeSand
+	executor, err := NewExecutor(t.TempDir())
+	if err != nil {
+		t.Fatal("initialize executor")
+	}
+	auth := &cliproxyauth.Auth{ID: "sand-stream-probe", Provider: providerID, Attributes: map[string]string{"credential_scope": "sand-stream-probe"}, Metadata: metadata}
+	body := map[string]any{"model": authorizedSandProbeModel(), "stream": true, "messages": []any{map[string]any{"role": "user", "content": "Reply exactly SAND_STREAM_OK."}}}
+	authorizedSandParameters(body)
+	payload, err := jsonx.Marshal(body)
+	if err != nil {
+		t.Fatal("encode probe")
+	}
+	req := claudeExecutorRequest("sand-stream-probe", string(payload))
+	req.Model = authorizedSandProbeModel()
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+	res, err := executor.ExecuteStream(ctx, auth, req, claudeExecutorOptions(true))
+	if err != nil {
+		t.Fatal(redactProbeError(err, metadata))
+	}
+	var text strings.Builder
+	terminal := false
+	for chunk := range res.Chunks {
+		if chunk.Err != nil {
+			t.Fatal(redactProbeError(chunk.Err, metadata))
+		}
+		for _, line := range strings.Split(string(chunk.Payload), "\n") {
+			if !strings.HasPrefix(line, "data: ") {
+				continue
+			}
+			event := gjson.Parse(strings.TrimPrefix(line, "data: "))
+			if event.Get("type").String() == "error" {
+				t.Fatal("stream error event")
+			}
+			text.WriteString(event.Get("delta.text").String())
+			terminal = terminal || event.Get("type").String() == "message_stop"
+		}
+	}
+	if !strings.Contains(text.String(), "SAND_STREAM_OK") || !terminal {
+		t.Fatal("missing marker/terminal")
+	}
+	t.Log("Sand stream marker and terminal verified")
 }
 
 func TestAuthorizedSandHostedWebProbe(t *testing.T) {

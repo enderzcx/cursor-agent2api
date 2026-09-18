@@ -407,6 +407,10 @@ func historyRequestKey(turn translatedTurn, tokenID any, continuation bool) (str
 	}
 	if normalizeRuntimeProfile(r.RuntimeProfile) == runtimeSand {
 		contract["runtime_profile"] = runtimeSand
+		contract["reasoning_effort"] = r.ReasoningEffort
+		contract["inference_context"] = r.InferenceContext
+		contract["thinking"] = r.ThinkingEnabled
+		contract["explicit_thinking"] = r.InferenceThinking
 	}
 	if !continuation {
 		contract["new_request"] = turn.managed.SessionID
