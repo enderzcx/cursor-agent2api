@@ -70,10 +70,43 @@ Drop a JSON file into the auth directory (`data/auths/` by default). The host pi
 ```
 
 - `api_key` is the only required field. On first use the plugin exchanges it for an Agent v1 access token, records the account identity, and the host persists the refreshed file. Tokens are refreshed every 30 minutes.
-- `runtime_profile`: `agent_v1` (default) or `sand`. Sand routes through Cursor's inference runtime and unlocks `grok-4.6`; keep separate credential files if you want both catalogs.
+- `runtime_profile`: `agent_v1` (default) or `sand`. Sand uses HTTP/2 directly at `https://api2.cursor.sh/aiserver.v1.InferenceService/Stream`, not a Box gateway or desktop patch. Account authorization and quota still apply; keep separate credential files if you want both catalogs.
 - Optional per-account `proxy_url`, `disabled`, and other CLIProxyAPI auth-file fields work as documented upstream.
 
 The control panel's Auth Files page shows each account's status (`active`, `unauthorized`, cooldown) and lets you upload/delete/disable files.
+
+### Fable 5.1: explicit 1M context and Medium effort (Sand)
+
+Select `runtime_profile: "sand"` in the account file. Existing accounts are not
+automatically switched. Then send, for example, to `/v1/messages`:
+
+```json
+{
+  "model": "claude-fable-5-1",
+  "cursor_context": "1m",
+  "thinking": {"type": "enabled", "budget_tokens": 1024},
+  "output_config": {"effort": "medium"},
+  "max_tokens": 2048,
+  "stream": true,
+  "messages": [{"role": "user", "content": "Reply exactly FABLE_OK."}]
+}
+```
+
+`cursor_context` is this plugin's optional request extension for Fable 5.1:
+`1m` or `300k`. Omit it to retain the previous upstream selector. The 1M
+selector sets Cursor Max mode; it does not confer account entitlement or prove
+that a million-token payload will be accepted. No model substitution occurs.
+
+Sand reads effort from the original caller protocol: Messages
+`output_config.effort`, Chat `reasoning_effort`, or Responses `reasoning.effort`.
+This update forwards explicit Claude/Grok effort; unsupported explicit values
+fail instead of silently selecting another tier. Send the same parameters on
+tool-result continuations. Ordinary `agent_v1` behavior is unchanged.
+
+Only an API key is sufficient for normal account import; a copied desktop access
+token alone is not a replacement for the API-key/account identity check. Do not
+copy macOS Keychain contents into this project. See [verification](docs/sand-fable-refresh.md)
+for the exact acceptance scope and remaining release gates.
 
 ## Build from source
 

@@ -49,6 +49,8 @@ func prepareInferenceTurn(turn *translatedTurn, req cliproxyexecutor.Request) er
 		return &requestError{status: http.StatusBadRequest, text: "Cursor Sand request is missing"}
 	}
 	run := &turn.managed.Run
+	run.ReasoningEffort = originalReasoningEffort(req)
+	run.InferenceContext = originalInferenceContext(req)
 	if err := attachInferenceHostedTools(run); err != nil {
 		return err
 	}
@@ -95,6 +97,9 @@ func encodeInferenceRequestWithPolicy(request RunRequest, dropSignatures bool) (
 		// model parameter so Sand returns native thinking parts (and their
 		// signatures) instead of silently running without extended thinking.
 		selection.Parameters = append(selection.Parameters, inferenceModelParameter{ID: "thinking", Value: "true"})
+	}
+	if err := applyInferenceParameters(&selection, request); err != nil {
+		return nil, err
 	}
 	payload := []byte{}
 	if strings.TrimSpace(request.SystemText) != "" {
