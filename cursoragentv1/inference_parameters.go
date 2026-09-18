@@ -60,7 +60,7 @@ func containsInferenceValue(values, value string) bool {
 }
 
 func originalInferenceThinking(req cliproxyexecutor.Request) *bool {
-	switch gjson.GetBytes(req.Payload, "thinking.type").String() {
+	switch strings.ToLower(strings.TrimSpace(gjson.GetBytes(req.Payload, "thinking.type").String())) {
 	case "enabled", "adaptive":
 		value := true
 		return &value
@@ -111,7 +111,7 @@ func applyInferenceParameters(selection *inferenceModelSpec, request RunRequest)
 		return &requestError{status: http.StatusBadRequest, text: "unsupported Cursor Sand reasoning effort"}
 	}
 	if strings.HasPrefix(selection.ID, "grok-") && effort == "max" {
-		effort = "xhigh"
+		return &requestError{status: http.StatusBadRequest, text: "Grok does not support max effort; request xhigh explicitly"}
 	}
 	setInferenceParameter(selection, "effort", effort)
 	return nil

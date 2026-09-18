@@ -51,14 +51,15 @@ func TestClaudeCatalogRejectsUnsupportedTiers(t *testing.T) {
 		{Model: "claude-opus-4-6", InferenceContext: "300k"},
 		{Model: "claude-sonnet-4-6", ReasoningEffort: "xhigh"},
 		{Model: "claude-fable-5", InferenceContext: "200k"},
+		{Model: "grok-4.6", ReasoningEffort: "max"},
 	} {
 		_, err := encodeInferenceRequest(run)
 		require.Error(t, err)
 	}
-	for _, kind := range []string{"enabled", "adaptive", "disabled"} {
+	for _, kind := range []string{"enabled", "adaptive", "disabled", "Enabled", "Adaptive", "Disabled", " DISABLED "} {
 		v := originalInferenceThinking(cliproxyexecutor.Request{Payload: []byte(`{"thinking":{"type":"` + kind + `"}}`)})
 		require.NotNil(t, v)
-		require.Equal(t, kind != "disabled", *v)
+		require.Equal(t, strings.ToLower(strings.TrimSpace(kind)) != "disabled", *v)
 	}
 	require.Nil(t, originalInferenceThinking(cliproxyexecutor.Request{Payload: []byte(`{}`)}))
 }
@@ -126,5 +127,21 @@ func TestSandHistoryIdentitySeparatesInferenceParameters(t *testing.T) {
 		key, err := historyRequestKey(other, 1, false)
 		require.NoError(t, err)
 		require.NotEqual(t, base, key)
+	}
+}
+
+func TestSandHistoryIdentityDistinguishesExplicitThinking(t *testing.T) {
+	turn := translatedTurn{managed: ManagedRequest{Run: RunRequest{Model: "claude-sonnet-5", RuntimeProfile: runtimeSand}}}
+	omitted, err := historyRequestKey(turn, 1, false)
+	require.NoError(t, err)
+	keys := []string{omitted}
+	for _, value := range []bool{false, true} {
+		turn.managed.Run.InferenceThinking = &value
+		key, err := historyRequestKey(turn, 1, false)
+		require.NoError(t, err)
+		for _, prior := range keys {
+			require.NotEqual(t, prior, key)
+		}
+		keys = append(keys, key)
 	}
 }
