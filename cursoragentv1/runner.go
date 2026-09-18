@@ -120,9 +120,10 @@ type RunRequest struct {
 	// UserMedia holds images/documents attached to the active user turn.
 	UserMedia []MediaPart
 	// ThinkingEnabled mirrors the caller's Anthropic thinking.type=enabled.
-	ThinkingEnabled  bool
-	ReasoningEffort  string
-	InferenceContext string // explicit cursor_context; empty preserves the existing selector
+	ThinkingEnabled   bool
+	ReasoningEffort   string
+	InferenceContext  string // explicit cursor_context; empty preserves the existing selector
+	InferenceThinking *bool  // preserve explicit disabled as distinct from omitted
 	// dropReasoningSignatures is set by the Sand runner's single retry after a
 	// foreign-signature rejection; history reasoning is then sent text-only.
 	dropReasoningSignatures bool

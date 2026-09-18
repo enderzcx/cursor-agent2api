@@ -38,11 +38,59 @@ func setInferenceParameter(selection *inferenceModelSpec, key, value string) {
 	selection.Parameters = append(selection.Parameters, inferenceModelParameter{ID: key, Value: value})
 }
 
+// Cursor catalog observed 2026-09-19; all Claude entries in DefaultModels.
+var claudeInferenceParameters = map[string]struct{ contexts, efforts string }{
+	"claude-fable-5-1":  {"300k 1m", "low medium high xhigh max"},
+	"claude-fable-5":    {"300k 1m", "low medium high xhigh max"},
+	"claude-opus-5":     {"300k 1m", "low medium high xhigh max"},
+	"claude-opus-4-8":   {"300k 1m", "low medium high xhigh max"},
+	"claude-opus-4-7":   {"300k 1m", "low medium high xhigh max"},
+	"claude-opus-4-6":   {"200k 1m", "low medium high max"},
+	"claude-sonnet-5":   {"300k 1m", "low medium high xhigh max"},
+	"claude-sonnet-4-6": {"200k 1m", "low medium high max"},
+}
+
+func containsInferenceValue(values, value string) bool {
+	for _, candidate := range strings.Fields(values) {
+		if candidate == value {
+			return true
+		}
+	}
+	return false
+}
+
+func originalInferenceThinking(req cliproxyexecutor.Request) *bool {
+	switch gjson.GetBytes(req.Payload, "thinking.type").String() {
+	case "enabled", "adaptive":
+		value := true
+		return &value
+	case "disabled":
+		value := false
+		return &value
+	}
+	return nil
+}
+
 func applyInferenceParameters(selection *inferenceModelSpec, request RunRequest) error {
-	// Only this catalog contract has been verified for explicit context selection.
+	catalog, knownClaude := claudeInferenceParameters[selection.ID]
+	// Claude Code's Fable contract is thinking-always-on. Do not silently
+	// downgrade it to Cursor's optional no-thinking variant when omitted.
+	if selection.ID == "claude-fable-5-1" || selection.ID == "claude-fable-5" {
+		if request.InferenceThinking != nil && !*request.InferenceThinking {
+			return &requestError{status: http.StatusBadRequest, text: "Fable thinking cannot be disabled; use effort to control reasoning depth"}
+		}
+		setInferenceParameter(selection, "thinking", "true")
+	}
+	if request.InferenceThinking != nil && knownClaude {
+		value := "false"
+		if *request.InferenceThinking {
+			value = "true"
+		}
+		setInferenceParameter(selection, "thinking", value)
+	}
 	if request.InferenceContext != "" {
-		if selection.ID != "claude-fable-5-1" || (request.InferenceContext != "1m" && request.InferenceContext != "300k") {
-			return &requestError{status: http.StatusBadRequest, text: "cursor_context requires claude-fable-5-1 and 1m or 300k"}
+		if !knownClaude || !containsInferenceValue(catalog.contexts, request.InferenceContext) {
+			return &requestError{status: http.StatusBadRequest, text: "unsupported cursor_context for this Claude model"}
 		}
 		selection.BuiltIn = false
 		selection.MaxMode = request.InferenceContext == "1m"
@@ -51,6 +99,9 @@ func applyInferenceParameters(selection *inferenceModelSpec, request RunRequest)
 	effort := strings.ToLower(strings.TrimSpace(request.ReasoningEffort))
 	if effort == "" {
 		return nil
+	}
+	if knownClaude && !containsInferenceValue(catalog.efforts, effort) {
+		return &requestError{status: http.StatusBadRequest, text: "unsupported reasoning effort for this Claude model"}
 	}
 	// Preserve unrelated models rather than sending unverified provider parameters.
 	if !strings.HasPrefix(selection.ID, "claude-") && !strings.HasPrefix(selection.ID, "grok-") {

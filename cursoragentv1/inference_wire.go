@@ -51,6 +51,7 @@ func prepareInferenceTurn(turn *translatedTurn, req cliproxyexecutor.Request) er
 	run := &turn.managed.Run
 	run.ReasoningEffort = originalReasoningEffort(req)
 	run.InferenceContext = originalInferenceContext(req)
+	run.InferenceThinking = originalInferenceThinking(req)
 	if err := attachInferenceHostedTools(run); err != nil {
 		return err
 	}
